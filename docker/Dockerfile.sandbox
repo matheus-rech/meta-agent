@@ -1,0 +1,311 @@
+# ============================================
+# NeuroResearch Agent - R/Python Sandbox
+# ============================================
+# A comprehensive container for neurosurgery
+# systematic review and meta-analysis
+# ============================================
+
+FROM rocker/shiny-verse:latest
+
+LABEL maintainer="NeuroResearch Agent"
+LABEL description="R/Python sandbox for neurosurgery research"
+LABEL version="1.0.0"
+
+# ============================================
+# SYSTEM DEPENDENCIES
+# ============================================
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Build tools
+    build-essential \
+    cmake \
+    pkg-config \
+    # Libraries for R packages
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libxml2-dev \
+    libfontconfig1-dev \
+    libharfbuzz-dev \
+    libfribidi-dev \
+    libfreetype6-dev \
+    libpng-dev \
+    libtiff5-dev \
+    libjpeg-dev \
+    # PDF processing
+    libpoppler-cpp-dev \
+    poppler-utils \
+    # Image processing
+    libmagick++-dev \
+    imagemagick \
+    # OCR
+    tesseract-ocr \
+    libtesseract-dev \
+    libleptonica-dev \
+    # Document conversion
+    pandoc \
+    pandoc-citeproc \
+    # LaTeX for PDF reports
+    texlive-latex-base \
+    texlive-fonts-recommended \
+    texlive-latex-extra \
+    # Utilities
+    git \
+    curl \
+    wget \
+    vim \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================
+# R PACKAGES: META-ANALYSIS CORE
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "meta",
+  "metafor",
+  "dmetar",
+  "metasens",
+  "metaBMA",
+  "bayesmeta"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: NETWORK META-ANALYSIS
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "netmeta",
+  "gemtc",
+  "multinma",
+  "bnma"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: EFFECT SIZES & CONVERSIONS
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "esc",
+  "compute.es",
+  "effectsize",
+  "MBESS",
+  "metapower"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: RISK OF BIAS & QUALITY
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "robvis",
+  "revtools",
+  "metagear"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: PRISMA & REPORTING
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "PRISMAstatement",
+  "PRISMA2020"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: SURVIVAL ANALYSIS
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "survival",
+  "survminer",
+  "survRM2",
+  "flexsurv",
+  "IPDfromKM",
+  "reconstructKM"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: VISUALIZATION
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "forestplot",
+  "forestploter",
+  "ggplot2",
+  "ggforestplot",
+  "gridExtra",
+  "patchwork",
+  "cowplot",
+  "scales",
+  "viridis",
+  "RColorBrewer",
+  "ggsci",
+  "ggpubr",
+  "plotly",
+  "highcharter"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: DATA MANIPULATION
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "tidyverse",
+  "data.table",
+  "janitor",
+  "lubridate",
+  "stringr",
+  "forcats",
+  "glue",
+  "purrr"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: FILE I/O
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "readxl",
+  "writexl",
+  "openxlsx",
+  "pdftools",
+  "tabulizer",
+  "officer",
+  "rio",
+  "haven",
+  "jsonlite",
+  "yaml"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: TABLES & REPORTING
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "gtsummary",
+  "flextable",
+  "kableExtra",
+  "gt",
+  "huxtable",
+  "tableone",
+  "compareGroups"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: STATISTICAL HELPERS
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "broom",
+  "parameters",
+  "performance",
+  "see",
+  "report",
+  "modelsummary",
+  "emmeans",
+  "marginaleffects"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: DOSE-RESPONSE
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "dosresmeta",
+  "rms"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: SHINY
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "shiny",
+  "shinydashboard",
+  "shinyWidgets",
+  "shinyjs",
+  "shinycssloaders",
+  "DT",
+  "bslib"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# R PACKAGES: VS CODE SUPPORT
+# ============================================
+
+RUN R -q -e 'install.packages(c(
+  "languageserver",
+  "httpgd",
+  "rstudioapi"
+), repos="https://cloud.r-project.org", Ncpus=4)'
+
+# ============================================
+# PYTHON SETUP
+# ============================================
+
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python packages for PDF and data processing
+RUN pip3 install --no-cache-dir --break-system-packages \
+    # PDF processing
+    PyPDF2 \
+    pdfplumber \
+    tabula-py \
+    camelot-py[cv] \
+    pypdf \
+    # Data processing
+    pandas \
+    numpy \
+    scipy \
+    openpyxl \
+    xlsxwriter \
+    # API and web
+    requests \
+    biopython \
+    # NLP
+    spacy \
+    # Utilities
+    pyyaml \
+    python-dotenv
+
+# Download spaCy model
+RUN python3 -m spacy download en_core_web_sm
+
+# ============================================
+# NODE.JS FOR MCP
+# ============================================
+
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
+
+# ============================================
+# ENVIRONMENT SETUP
+# ============================================
+
+# Create workspace directory
+RUN mkdir -p /workspace
+WORKDIR /workspace
+
+# Set R library path
+ENV R_LIBS_USER=/usr/local/lib/R/site-library
+
+# Expose Shiny port
+EXPOSE 3838
+
+# ============================================
+# HEALTHCHECK
+# ============================================
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD R -q -e "library(meta)" || exit 1
+
+# ============================================
+# DEFAULT COMMAND
+# ============================================
+
+CMD ["R"]

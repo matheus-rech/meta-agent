@@ -1,0 +1,54 @@
+{
+  "name": "@nra/core",
+  "version": "1.0.0",
+  "description": "Core agent functionality for NeuroResearch Agent",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./agent": {
+      "import": "./dist/agent/index.js",
+      "types": "./dist/agent/index.d.ts"
+    },
+    "./mcp": {
+      "import": "./dist/mcp/client.js",
+      "types": "./dist/mcp/client.d.ts"
+    },
+    "./skills": {
+      "import": "./dist/skills/registry.js",
+      "types": "./dist/skills/registry.d.ts"
+    },
+    "./tools/*": {
+      "import": "./dist/tools/*.js",
+      "types": "./dist/tools/*.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.25.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/sdk": "^0.25.0"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "license": "MIT"
+}

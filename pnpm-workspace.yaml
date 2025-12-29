@@ -1,0 +1,4 @@
+packages:
+  - 'packages/*'
+  - 'packages/mcp-servers/*'
+  - 'packages/skills/*'

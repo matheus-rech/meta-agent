@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # R/Python Sandbox Container
+  # ============================================
+  sandbox:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.sandbox
+    image: neuroresearch/sandbox:latest
+    container_name: nra-sandbox
+    volumes:
+      - ./workspace:/workspace
+      - sandbox-r-libs:/usr/local/lib/R/site-library
+    ports:
+      - "3838:3838"  # Shiny
+    environment:
+      - R_LIBS_USER=/usr/local/lib/R/site-library
+    healthcheck:
+      test: ["CMD", "R", "-q", "-e", "library(meta)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # MCP PubMed Server
+  # ============================================
+  mcp-pubmed:
+    build:
+      context: ./packages/mcp-servers/pubmed
+      dockerfile: Dockerfile
+    image: neuroresearch/mcp-pubmed:latest
+    container_name: nra-mcp-pubmed
+    environment:
+      - PUBMED_EMAIL=${PUBMED_EMAIL:-research@example.com}
+      - NCBI_API_KEY=${NCBI_API_KEY:-}
+    restart: unless-stopped
+
+  # ============================================
+  # MCP R Execute Server
+  # ============================================
+  mcp-r-execute:
+    build:
+      context: ./packages/mcp-servers/r-execute
+      dockerfile: Dockerfile
+    image: neuroresearch/mcp-r-execute:latest
+    container_name: nra-mcp-r-execute
+    volumes:
+      - ./workspace:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - NRA_DOCKER_IMAGE=neuroresearch/sandbox:latest
+      - NRA_WORK_DIR=/workspace
+    depends_on:
+      - sandbox
+    restart: unless-stopped
+
+  # ============================================
+  # MCP Extraction Server
+  # ============================================
+  mcp-extraction:
+    build:
+      context: ./packages/mcp-servers/extraction
+      dockerfile: Dockerfile
+    image: neuroresearch/mcp-extraction:latest
+    container_name: nra-mcp-extraction
+    volumes:
+      - ./workspace:/workspace
+    restart: unless-stopped
+
+  # ============================================
+  # Agent API Server (Optional)
+  # ============================================
+  agent-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.agent
+    image: neuroresearch/agent:latest
+    container_name: nra-agent
+    ports:
+      - "8080:8080"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - NODE_ENV=production
+    volumes:
+      - ./workspace:/workspace
+      - ./config:/app/config
+    depends_on:
+      - sandbox
+      - mcp-pubmed
+      - mcp-r-execute
+      - mcp-extraction
+    restart: unless-stopped
+
+  # ============================================
+  # Shiny Meta-Analysis Dashboard
+  # ============================================
+  dashboard:
+    build:
+      context: ./packages/dashboard
+      dockerfile: Dockerfile
+    image: neuroresearch/dashboard:latest
+    container_name: nra-dashboard
+    ports:
+      - "3839:3838"
+    volumes:
+      - ./workspace:/workspace
+    depends_on:
+      - sandbox
+    restart: unless-stopped
+
+volumes:
+  sandbox-r-libs:
+    name: nra-sandbox-r-libs
+
+networks:
+  default:
+    name: neuroresearch-network
